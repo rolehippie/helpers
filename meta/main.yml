@@ -20,6 +20,8 @@
 # None
 # @end
 galaxy_info:
+  role_name: helpers
+  namespace: rolehippie
   author: Thomas Boerger
   description: Ansible role which provides some generic filters and libraries
   license: Apache-2.0
