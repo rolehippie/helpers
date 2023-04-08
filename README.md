@@ -15,11 +15,17 @@ Building and improving this Ansible role have been sponsored by my current and p
 
 ## Table of content
 
+- [Requirements](#requirements)
 - [Dependencies](#dependencies)
 - [License](#license)
 - [Author](#author)
 
 ---
+
+## Requirements
+
+- Minimum Ansible version: `2.10`
+
 
 
 
