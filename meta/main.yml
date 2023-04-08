@@ -7,7 +7,7 @@
 # [![Readme Workflow](https://github.com/rolehippie/helpers/actions/workflows/readme.yml/badge.svg)](https://github.com/rolehippie/helpers/actions/workflows/readme.yml)
 # [![Galaxy Workflow](https://github.com/rolehippie/helpers/actions/workflows/galaxy.yml/badge.svg)](https://github.com/rolehippie/helpers/actions/workflows/galaxy.yml)
 # [![License: Apache-2.0](https://img.shields.io/github/license/rolehippie/helpers)](https://github.com/rolehippie/helpers/blob/master/LICENSE)
-# [![Ansible Role](https://img.shields.io/ansible/role/51425)](https://galaxy.ansible.com/rolehippie/helpers)
+# [![Ansible Role](https://img.shields.io/badge/role-rolehippie.helpers-blue)](https://galaxy.ansible.com/rolehippie/helpers)
 #
 # Ansible role which provides some generic filters and libraries.
 #
