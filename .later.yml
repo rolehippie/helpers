@@ -6,4 +6,8 @@ rules:
     - library/
     - filter_plugins/
 
+yamllint:
+  document-end:
+    present: True
+
 ...
