@@ -34,42 +34,42 @@ options:
     src:
         description:
             - The path to the source JSON file
-        required: True
+        required: true
         type: str
     dest:
         description:
             - The path to the destination JSON file
-        required: False
+        required: false
         type: str
     operations:
         description:
             - A list of operations to perform on the JSON document
-        required: True
+        required: true
         type: list
     backup:
         description:
             - Copy the targeted file to a backup prior to patch
-        required: False
+        required: false
         type: bool
     unsafe_writes:
         description:
             - Allow Ansible to fall back to unsafe methods of writing files (some systems do not support atomic operations)
-        required: False
+        required: false
         type: bool
     pretty:
         description:
             - Write pretty-print JSON when file is changed
-        required: False
+        required: false
         type: bool
     create:
         description:
             - Create a file if it does not already exist
-        required: False
+        required: false
         type: bool
     create_type:
         description:
             - Initialize a newly created JSON file as an object or array
-        required: False
+        required: false
         choices:
             - "object"
             - "array"
@@ -199,10 +199,10 @@ class PatchManager(object):
 
     def __init__(self, module):
         self.module = module
-        self.create = self.module.params.get('create', False)
+        self.create = self.module.params.get('create', false)
         self.create_type = self.module.params.get(
             'create_type', 'object').lower()
-        empty = False
+        empty = false
 
         # validate file
         self.src = self.module.params['src']
@@ -210,7 +210,7 @@ class PatchManager(object):
             if not self.create:
                 self.module.fail_json(
                     msg="could not find file at `%s`" % self.src)
-            empty = True
+            empty = true
 
         # use 'src' as the output file, unless 'dest' is provided
         self.outfile = self.src
@@ -239,8 +239,8 @@ class PatchManager(object):
         except Exception as e:
             self.module.fail_json(msg=str(e))
 
-        self.do_backup = self.module.params.get('backup', False)
-        self.pretty_print = self.module.params.get('pretty', False)
+        self.do_backup = self.module.params.get('backup', false)
+        self.pretty_print = self.module.params.get('pretty', false)
 
     def run(self):
         changed, tested = self.patcher.patch()
@@ -344,11 +344,11 @@ class JSONPatcher(object):
             new_obj, changed, tested = getattr(self, op)(**patch)
             if changed is not None or op == "remove":  # 'remove' will fail if we don't actually remove anything
                 modified = bool(changed)
-                if modified is True:
+                if modified is true:
                     self.obj = new_obj
             if tested is not None:
                 # one false test fails everything
-                test_result = False if test_result is False else tested
+                test_result = false if test_result is false else tested
         return modified, test_result
 
     def _get(self, path, obj, **discard):
@@ -379,19 +379,19 @@ class JSONPatcher(object):
     # https://tools.ietf.org/html/rfc6902#section-4.1
     def add(self, path, value, obj, **discard):
         """Perform an 'add' operation."""
-        chg = False
+        chg = false
         path = path.lstrip('/')
         if "/" not in path:  # recursion termination
             if isinstance(obj, dict):
                 old_value = obj.get(path)
                 obj[path] = value
                 if obj[path] != old_value:
-                    chg = True
+                    chg = true
                 return obj, chg, None
             elif isinstance(obj, list):
                 if path == "-":  # points to end of list
                     obj.append(value)
-                    chg = True
+                    chg = true
                 elif not path.isdigit():
                     raise PathError(
                         "'%s' is not a valid index for a JSON array" % path)
@@ -401,7 +401,7 @@ class JSONPatcher(object):
                         raise PathError(
                             "specified index '%s' cannot be greater than the number of elements in JSON array" % path)
                     obj.insert(idx, value)
-                    chg = True
+                    chg = true
                 return obj, chg, None
         else:  # traverse obj until last path member
             elements = path.split('/')
@@ -483,7 +483,7 @@ class JSONPatcher(object):
         """Perform a 'replace' operation."""
         old_value = self._get(path, obj)
         if old_value == value:
-            return obj, False, None
+            return obj, false, None
         if old_value is None:  # the target location must exist for operation to be successful
             raise PathError("could not find '%s' member in JSON object" % path)
         new_obj, dummy, tst = self.remove(path, obj)
@@ -493,7 +493,7 @@ class JSONPatcher(object):
     # https://tools.ietf.org/html/rfc6902#section-4.4
     def move(self, from_path, path, obj, **discard):
         """Perform a 'move' operation."""
-        chg = False
+        chg = false
         new_obj, removed, tst = self.remove(from_path, obj)
         if removed is not None:  # don't inadvertently add 'None' as a value somewhere
             new_obj, chg, tst = self.add(path, removed, new_obj)
@@ -519,7 +519,7 @@ class JSONPatcher(object):
         In such a case, each member of the array at that point in the
         path will be tested sequentially for the given value, and if
         a matching value is found, the method will return immediately
-        with a True value.
+        with a true value.
 
         Example:
             {"op": "test", "path": "/array/*/member/property", "value": 2}
@@ -531,7 +531,7 @@ class JSONPatcher(object):
                 {"member": {"property": 2}}
             ]
         }
-        ... the result would be True, because an object exists within
+        ... the result would be true, because an object exists within
         "array" that has the matching path and value.
         """
         elements = path.lstrip('/').split('/')
@@ -539,24 +539,24 @@ class JSONPatcher(object):
         for idx, elem in enumerate(elements):
             if elem == "*":  # wildcard
                 if not isinstance(next_obj, list):
-                    return obj, None, False
+                    return obj, None, false
                 for sub_obj in next_obj:
                     dummy, chg, found = self.test(
                         '/'.join(elements[(idx + 1):]), value, sub_obj)
                     if found:
                         return obj, None, found
-                return obj, None, False
+                return obj, None, false
             try:
                 next_obj = next_obj[elem]
             except KeyError:
-                return obj, None, False
+                return obj, None, false
             except TypeError:  # it's a list
                 if not elem.isdigit():
-                    return obj, None, False
+                    return obj, None, false
                 try:
                     next_obj = next_obj[int(elem)]
                 except IndexError:
-                    return obj, None, False
+                    return obj, None, false
         return obj, None, next_obj == value
 
 
@@ -564,16 +564,16 @@ def main():
     # Parsing argument file
     module = basic.AnsibleModule(
         argument_spec=dict(
-            src=dict(required=True, type='str'),
-            dest=dict(required=False, type='str'),
-            operations=dict(required=True, type='list'),
-            backup=dict(required=False, default=False, type='bool'),
-            unsafe_writes=dict(required=False, default=False, type='bool'),
-            pretty=dict(required=False, default=False, type='bool'),
-            create=dict(required=False, default=False, type='bool'),
-            create_type=dict(required=False, default='object', type='str'),
+            src=dict(required=true, type='str'),
+            dest=dict(required=false, type='str'),
+            operations=dict(required=true, type='list'),
+            backup=dict(required=false, default=false, type='bool'),
+            unsafe_writes=dict(required=false, default=false, type='bool'),
+            pretty=dict(required=false, default=false, type='bool'),
+            create=dict(required=false, default=false, type='bool'),
+            create_type=dict(required=false, default='object', type='str'),
         ),
-        supports_check_mode=True
+        supports_check_mode=true
     )
 
     manager = PatchManager(module)
